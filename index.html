@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Said Mammadov</title>
+  <meta name="description" content="Junior Python Developer & Computer Engineering graduate. Building data-driven solutions at the intersection of software engineering and AI.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <script src="index.js" defer></script>
+</head>
+<body>
+
+  <div class="terminal-window" id="terminal-window">
+
+    <div class="titlebar">
+      <button type="button" class="titlebar-dot red"    id="dot-red"    aria-label="Close session" title="Close session"></button>
+      <button type="button" class="titlebar-dot yellow" id="dot-yellow" aria-label="Minimize window" title="Minimize"></button>
+      <button type="button" class="titlebar-dot green"  id="dot-green"  aria-label="Maximize window" title="Maximize"></button>
+      <div class="titlebar-title" id="title">said@mammadov: ~/portfolio</div>
+    </div>
+
+    <div class="terminal-body" id="terminal-body" role="log" aria-live="off" aria-atomic="false" aria-label="Terminal output">
+      <!-- Command output is appended here at runtime -->
+    </div>
+
+    <div class="input-area">
+      <span class="input-prompt" aria-hidden="true">&gt;</span>
+      <div class="input-wrapper">
+        <div class="autocomplete" id="autocomplete" role="listbox" aria-label="Command suggestions"></div>
+        <input class="input-field" id="cmd-input"
+               aria-label="Terminal command input — type a command and press Enter"
+               placeholder="type 'help' to see available commands..."
+               autocomplete="off" spellcheck="false" autofocus
+               aria-autocomplete="list" aria-controls="autocomplete" />
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
