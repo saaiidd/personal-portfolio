@@ -707,10 +707,23 @@ function submit() {
 
 input.addEventListener('input', e => refreshAC(/** @type {HTMLInputElement} */ (e.target).value));
 
+/* Form submit catches Enter reliably across every mobile keyboard variant
+   (iOS Safari "Go", Android Gboard "Done") even when keydown fires
+   inconsistently. The keydown handler below stays as the desktop path. */
+const cmdForm = /** @type {HTMLFormElement|null} */ (document.getElementById('cmd-form'));
+if (cmdForm) {
+  cmdForm.addEventListener('submit', e => {
+    e.preventDefault();
+    submit();
+  });
+}
+
 input.addEventListener('keydown', e => {
   const acOpen = ac.classList.contains('show');
 
-  if (e.key === 'Enter') { e.preventDefault(); submit(); return; }
+  // Enter is handled by the form's submit event — let it bubble through.
+  // We don't preventDefault here so the form submission fires natively.
+  if (e.key === 'Enter') { return; }
 
   if (e.key === 'Tab') {
     e.preventDefault();
@@ -803,6 +816,21 @@ try {
 
 /* =================== BOOT =================== */
 
+/* Touch / mobile detection — primary input is a coarse pointer (finger).
+   This is the right signal for "phone or tablet without keyboard" — it
+   correctly returns false for hybrid laptops with touch screens. */
+const IS_TOUCH = (() => {
+  try {
+    return window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  } catch (e) {
+    return 'ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0;
+  }
+})();
+
+const BOOT_DISMISS_COPY = IS_TOUCH
+  ? 'Tap anywhere to continue'
+  : 'Press Enter to continue';
+
 const BOOT_LINES = [
   { delay: 0,    text: 'Initializing portfolio system...' },
   { delay: 350,  text: 'Loading design tokens...' },
@@ -817,8 +845,8 @@ const BOOT_LINES = [
   { delay: 4100, text: 'AI tooling: <span class="ok">engaged</span>' },
   { delay: 4300, text: '' },
   { delay: 4400, text: '<span class="t-accent">✦</span>' },
-  { delay: 4550, text: '<span class="ready">said.mammadov v1.0</span> — ready.' },
-  { delay: 4700, text: '<span class="press-enter">Press Enter to continue<span class="boot-cursor">▍</span></span>' },
+  { delay: 4550, text: '<span class="ready">said.mammadov v1.0</span> -- ready.' },
+  { delay: 4700, text: `<span class="press-enter">${BOOT_DISMISS_COPY}<span class="boot-cursor">▍</span></span>` },
 ];
 const BOOT_END = 4700;
 const BOOT_FAILSAFE = 7000;
@@ -830,6 +858,7 @@ function bootSequence(skipDirectTo) {
 
   const wrap = document.createElement('div');
   wrap.className = 'boot';
+  if (IS_TOUCH) wrap.classList.add('boot-tappable');
   body.appendChild(wrap);
 
   const timers = [];
@@ -843,7 +872,7 @@ function bootSequence(skipDirectTo) {
     }, l.delay));
   });
 
-  // Failsafe: if any boot-line stayed invisible, force visibility after 7s
+  // Failsafe: force visibility if animations got blocked
   timers.push(window.setTimeout(() => {
     wrap.querySelectorAll('.boot-line').forEach(el => {
       /** @type {HTMLElement} */ (el).style.opacity = '1';
@@ -856,13 +885,17 @@ function bootSequence(skipDirectTo) {
     dismissed = true;
     timers.forEach(t => clearTimeout(t));
     document.removeEventListener('keydown', onKey, true);
+    win.removeEventListener('pointerup', onTap, true);
+    win.removeEventListener('touchend', onTap, true);
     input.disabled = false;
     input.placeholder = "type 'help' to see available commands...";
     renderWelcome();
-    // Now that scripted boot output is gone, enable live-region announcements
     body.setAttribute('aria-live', 'polite');
     if (skipDirectTo) run(skipDirectTo);
-    input.focus();
+    // On touch we DO NOT auto-focus the input — that would pop up the
+    // keyboard immediately and shove the welcome screen off-screen on
+    // small viewports. Desktop still focuses for the typing experience.
+    if (!IS_TOUCH) input.focus();
   };
 
   const onKey = e => {
@@ -873,9 +906,25 @@ function bootSequence(skipDirectTo) {
     }
   };
 
-  // Listen from boot completion onward — Enter only.
+  // Touch handler — fires on pointer release inside the terminal window.
+  // We attach BOTH pointerup and touchend because Safari iOS still has
+  // edge cases where pointerup is suppressed during scroll-blocking.
+  const onTap = (/** @type {Event} */ e) => {
+    // Ignore if the user is interacting with the disabled input area —
+    // they'd never see the boot anyway, but be defensive.
+    const t = /** @type {HTMLElement} */ (e.target);
+    if (t && t.closest && t.closest('.input-area')) return;
+    e.preventDefault();
+    ready();
+  };
+
+  // Listen from boot completion onward.
   window.setTimeout(() => {
     document.addEventListener('keydown', onKey, true);
+    if (IS_TOUCH) {
+      win.addEventListener('pointerup', onTap, true);
+      win.addEventListener('touchend',  onTap, true);
+    }
   }, BOOT_END);
 }
 

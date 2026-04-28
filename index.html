@@ -28,17 +28,18 @@
       <!-- Command output is appended here at runtime -->
     </div>
 
-    <div class="input-area">
+    <form class="input-area" id="cmd-form" autocomplete="off" novalidate>
       <span class="input-prompt" aria-hidden="true">&gt;</span>
       <div class="input-wrapper">
         <div class="autocomplete" id="autocomplete" role="listbox" aria-label="Command suggestions"></div>
         <input class="input-field" id="cmd-input"
                aria-label="Terminal command input — type a command and press Enter"
                placeholder="type 'help' to see available commands..."
-               autocomplete="off" spellcheck="false" autofocus
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+               enterkeyhint="go" inputmode="text"
                aria-autocomplete="list" aria-controls="autocomplete" />
       </div>
-    </div>
+    </form>
 
   </div>
 

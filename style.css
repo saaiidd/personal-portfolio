@@ -180,6 +180,9 @@ body {
 .terminal-body::-webkit-scrollbar-thumb:hover { background: var(--border-dashed); }
 .terminal-body { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
 
+/* Boot screen is tappable on touch devices — visual hint via cursor */
+.boot-tappable { cursor: pointer; -webkit-tap-highlight-color: rgba(var(--accent-rgb), 0.15); }
+
 /* MOTD — login banner */
 .motd { margin-top: -4px; margin-bottom: 14px; }
 .motd em { font-style: italic; color: var(--text); }
