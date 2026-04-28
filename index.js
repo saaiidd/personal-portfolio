@@ -200,10 +200,10 @@ const LINKS = [
 ];
 
 const THEMES = [
-  { id: '',           name: 'Dark Night', desc: 'Default · indigo + peach',       swatches: ['#1a1a2e','#252540','#e8a87c','#7caae8'] },
-  { id: 'theme-light',name: 'Daylight',   desc: 'White window · copper accent',   swatches: ['#f0f0f5','#ffffff','#c47840','#4070c4'] },
-  { id: 'theme-glass',name: 'Glass',      desc: 'Frosted blur · purple accent',   swatches: ['#0f0f1a','#2a1a4a','#a78bfa','#67e8f9'] },
-  { id: 'theme-retro',name: 'System 7',   desc: 'Monochrome Mac OS Classic',      swatches: ['#808080','#C0C0C0','#000000','#404040'] },
+  { id: '',      name: 'Dark Night', desc: 'Default -- indigo + peach',     swatches: ['#1a1a2e','#252540','#e8a87c','#7caae8'] },
+  { id: 'light', name: 'Daylight',   desc: 'White window -- copper accent', swatches: ['#f0f0f5','#ffffff','#b06430','#4070c4'] },
+  { id: 'glass', name: 'Glass',      desc: 'Frosted blur -- purple accent', swatches: ['#0f0f1a','#2a1a4a','#c4b5fd','#67e8f9'] },
+  { id: 'retro', name: 'System 7',   desc: 'Monochrome Mac OS Classic',     swatches: ['#808080','#C0C0C0','#000000','#404040'] },
 ];
 
 const COMMANDS = {
@@ -539,7 +539,7 @@ const CMD = {
   },
 
   themes() {
-    const cur = document.body.className || '';
+    const cur = getTheme();
     return `
       <div class="output-line heading">## Theme</div>
       <div class="output-line t-dim">Click a theme to switch. Persists across sessions.</div>
@@ -630,11 +630,7 @@ function attachHandlers() {
   document.querySelectorAll('.theme-card').forEach(card => {
     const apply = () => {
       const t = /** @type {HTMLElement} */ (card).dataset.theme || '';
-      document.body.className = t;
-      try {
-        if (t) localStorage.setItem('said-theme', t);
-        else   localStorage.removeItem('said-theme');
-      } catch (e) {}
+      setTheme(t);
       document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
       card.classList.add('active');
     };
@@ -803,15 +799,33 @@ dotRed.addEventListener('click', () => {
 dotYellow.addEventListener('click', () => win.classList.toggle('minimized'));
 dotGreen.addEventListener('click', () => win.classList.toggle('maximized'));
 
+/* =================== THEME =================== */
+
+/** Read the current theme from the body's data-theme attribute. */
+function getTheme() {
+  return document.body.getAttribute('data-theme') || '';
+}
+
+/** Apply a theme by setting / removing the data-theme attribute,
+ *  and persist the choice. Empty string = default theme (no attribute). */
+function setTheme(t) {
+  if (t) document.body.setAttribute('data-theme', t);
+  else   document.body.removeAttribute('data-theme');
+  try {
+    if (t) localStorage.setItem('said-theme', t);
+    else   localStorage.removeItem('said-theme');
+  } catch (e) {}
+}
+
 /* Cross-tab theme sync */
 window.addEventListener('storage', (e) => {
-  if (e.key === 'said-theme') document.body.className = e.newValue || '';
+  if (e.key === 'said-theme') setTheme(e.newValue || '');
 });
 
-/* Restore theme */
+/* Restore theme on load */
 try {
   const saved = localStorage.getItem('said-theme');
-  if (saved) document.body.className = saved;
+  if (saved) setTheme(saved);
 } catch (e) {}
 
 /* =================== BOOT =================== */
