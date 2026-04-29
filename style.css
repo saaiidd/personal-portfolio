@@ -321,6 +321,21 @@
   .motd { margin-top: -4px; margin-bottom: 14px; }
   .motd em { font-style: italic; color: var(--text); }
 
+  /* ----- EXIT MESSAGE — fluid type so it never reads as fine print.
+     clamp(min, preferred, max): scales smoothly between viewports
+     and respects user font-size preference because `vw` units do. */
+  .exit-message {
+    font-family: var(--font-mono);
+    font-size: clamp(1rem, 0.85rem + 0.7vw, 1.5rem);
+    line-height: 1.5;
+    color: var(--accent);
+    white-space: pre;
+    text-align: center;
+    margin: 24px auto;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
   /* ----- ASCII PORTRAIT ----- */
   .ascii-art {
     font-family: var(--font-mono);

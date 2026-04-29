@@ -575,7 +575,7 @@ const CMD = {
   exit() {
     body.innerHTML = '';
     append(`
-      <pre class="ascii-art" aria-hidden="true">
+      <pre class="exit-message">
        Process terminated.
        But great code never really stops.
        Let's keep building.</pre>
